@@ -1,0 +1,250 @@
+
+###################################### Citi Bike Data Query ################################################
+
+# Query To Load Citi Bike Data on HIVE
+create external table citibike (date1 string,date2 string, distance double, startid int, endid int, duration double,
+lat1 double, lat2 double, longitude1 double, longitude2 double, age double, startname string, endname string)
+row format delimited fields terminated by ','
+location '/user/mn2643/FinalProject/HiveData/Data/';
+
+# Verify The Data
+select * from citibike limit 5;
+
+# Count Distinct Citi Bike Station
+select COUNT (DISTINCT startid) from citibike
+
+# Count Rides by stations
+select startid, COUNT(*) as total FROM citibike group by startid order by total desc;
+
+# Count Distinct Citi Bike Station by start and end it
+select startid, endid, lat1, lat2, FROM citibike group by startid, endid order by COUNT(*) desc
+
+# Cast the String Date Coloumn to TimeStamp
+select cast(REGEXP_REPLACE(date1,'"','') as timestamp) from citibike limit 5;
+
+# Store Unique Staions in A directory
+INSERT OVERWRITE DIRECTORY '/user/mn2643/FinalProject/hiveoutput/'
+select distinct * from (select startid as startid from citibike UNION ALL select endid as startid from citibike) w;
+
+
+# Extract Lat and Long for Stations 
+select startid, lat1,longitude1, count(*) as total  FROM citibike group by startid,lat1,longitude1 order by total
+
+
+# Remove Redundant Stations 
+select lat1, longitude1, startid from citibike WHERE startid in (select distinct * from (select startid as startid from citibike UNION ALL select endid as startid from citibike) 
+w )group by startid,lat1, longitude1
+)
+
+# Create a Table which has the mapping od Station ID -> ZipCode:
+ create external table postcode (startid int, zipcode int) row format delimited fields terminated by ','
+ location '/user/mn2643/FinalProject/HiveData/Postcodes/';
+
+# Add Zip Code Coloumn to Citi Bike
+ALTER TABLE citibike ADD COLUMNS (zipcode int);
+
+
+# Join PostCode with CitiBike
+SELECT * from finaldata LEFT JOIN postcode ON finaldata.startid = postcode.startid
+
+
+# Create A Final Citi Bike Data Table, which has Dates Casted
+create table  finaldata AS select cast(REGEXP_REPLACE(date1,'"','') as timestamp) as date1, cast(REGEXP_REPLACE(date2,'"','') as timestamp) as date2,
+distance, startid, endid, duration, lat1, lat2, longitude1, longitude2, age, startname, endname
+from citibike;
+
+
+#Extracting using id stations
+insert overwrite directory '/user/mn2643/hivefinal/'
+row format delimited
+FIELDS TERMINATED BY '\t'
+SELECT * from finaldata LEFT JOIN postcode ON finaldata.startid = postcode.startid;
+
+
+select startid, startname ,count(*) as total from finaldata group by startid, startname order by total DESC;
+
+
+# Group By Years and Quarters
+select YEAR(date1), COUNT(*)  from finaldata group by YEAR(date1);
+select YEAR(date1), MONTH(date1), COUNT(*) from citibike group by YEAR(date1),MONTH(date1);
+select YEAR(date1),count(*) from finaldata WHERE MONTH(date1) BETWEEN 1  AND 3
+select YEAR(date1),count(*) from finaldata WHERE MONTH(date1) BETWEEN 4  AND 6
+select YEAR(date1),count(*) from finaldata WHERE MONTH(date1) BETWEEN 6  AND 9
+select YEAR(date1),count(*) from finaldata WHERE MONTH(date1) BETWEEN 9  AND 12
+select YEAR(date1),count(*) from finaldata WHERE (MONTH(date1) BETWEEN 4  AND 6) and (YEAR(date1) is BETWEEN 2015 and 2016) group by YEAR(date1)
+select YEAR(date1),count(*) from finaldata WHERE MONTH(date1) = 1 group by YEAR(date1);
+
+# Find Most Busisest Stations 
+select startid, startname ,count(*) as total from finaldata group by startid, startname order by total DESC;
+
+# Count Disticnt By Year 
+select COUNT(DISTINCT startid) from finaldata group by YEAR(date1);
+
+
+#find DISTINCT
+select zipcode, count(*) from postcode RIGHT JOIN finaldata ON finaldata.startid = postcode.startid group by zipcode;
+
+# Inner Join ZipCode With Citi Bike Data on Statio Id
+select finaldata.startid, postcode.zipcode, count(distinct finaldata.startid) as total FROM finaldata inner join postcode on finaldata.startid = postcode.startid group by finaldata.startid, postcode.zipcode order by total;
+
+# Inner Join ZipCode With Citi Bike Data on Statio Id
+select postcode.zipcode, count(*) as total FROM postcode inner join finaldata on finaldata.startid = postcode.startid group by postcode.zipcode order by total;
+
+# Combining Citi Bike Analysis with Accidents
+select accidents.zipcode as AreaZipcode, count(DISTINCT accidents.accident) as TotalAccidents, count(DISTINCT finaldata.startid) as TotalStations, count(finaldata.startid) as TotalTrips FROM accidents inner join postcode on accidents.zipcode = postcode.zipcode inner join
+finaldata on finaldata.startid = postcode.startid group by accidents.zipcode, accidents.accident order by TotalAccidents DESC;
+
+
+# Combining Citi Bike Analysis with Accidents
+select w.zip, w.stationame, MAX(w.total), w.TotalAccidents as acc FROM (select finaldata.startname as stationame , accidents.accident as TotalAccidents, accidents.zipcode as zip, count(finaldata.startname) as total FROM accidents inner join postcode on accidents.zipcode = postcode.zipcode inner join finaldata on finaldata.startid = postcode.startid group by finaldata.startname, accidents.zipcode, accidents.accident order by total DESC) w GROUP BY w.stationame, w.zip ORDER by w.acc DESC;
+
+
+select finaldata.startname as Station Name, count(*) as total FROM finaldata inner join postcode on finaldata.zipcode = postcode.zipcode inner join
+finaldata on finaldata.startid = postcode.startid group by finaldata.startname order by total DESC;
+
+
+###################################### Accident Data Query ################################################################################
+
+# Query To Load Accident Data on HIVE
+create external table accident (year int, month int, zipcode int, vehicle string)
+row format delimited fields terminated by ' '
+location '/user/rs6785/Project/HiveInput/';
+
+# Verify The Data
+select * from accident limit 5;
+
+# Count Distinct ZipCode
+select COUNT (DISTINCT zipcode) from accident;
+
+#Count Total Number of accidents year-wise
+select year, count(*) as Total_Accidents
+from accident
+group by year;
+
+#Count Total Number of accidents at a particular citibike station
+select postcode.zipcode as station_zipcode,count(*) as Total_Accidents
+from postcode
+inner join accident 
+on postcode.zipcode=accident.zipcode
+group by postcode.zipcode
+order by Total_Accidents Desc;
+
+# Combining accidents based on zipcode
+SELECT zipcode, count(*) as total from accidents group by zipcode order by total;
+
+select distinct(postcode.zipcode), x.total
+from postcode
+inner join (select accident.zipcode, count(*) as total
+from accident
+group by accident.zipcode) as x
+on x.zipcode = postcode.zipcode
+order by x.total desc;
+
+#Count most frequent vehicle type involved in accident
+select vehicle, count(*) as Total_Accidents
+from accident
+group by vehicle
+order by Total_Accidents DESC
+Limit 5;
+
+#Count Total Number of accidents month-wise
+select month, count(*) as Total_Accidents
+from accident
+group by month;
+
+#Count Total Number of accidents monthandyear-wise
+select month, year, count(*) as Total_Accidents
+from accident
+group by month, year
+order by Total_Accidents DESC;
+
+#Count Total Number of accidents quarterly
+select count(*) as Total_Accidents
+from accident
+where month between 1 and 3;
+
+select count(*) as Total_Accidents
+from accident
+where month between 4 and 6;
+
+select count(*) as Total_Accidents
+from accident
+where month between 7 and 9;
+
+select count(*) as Total_Accidents
+from accident
+where month between 10 and 12;
+
+#Count Total Number of accidents quarterly and year-wise
+select year, count(*) as Total_Accidents
+from accident
+where month between 1 and 3
+group by year;
+
+select year, count(*) as Total_Accidents
+from accident
+where month between 4 and 6
+group by year;
+
+select year, count(*) as Total_Accidents
+from accident
+where month between 7 and 9
+group by year;
+
+select year, count(*) as Total_Accidents
+from accident
+where month between 10 and 12
+group by year;
+
+#Count Total Number of fatalaties year-wise
+select year, count(killed)
+from accidentinfo
+where killed=1
+group by year;
+
+#Count Total Number of injuries year-wise
+select year, count(injured)
+from accidentinfo
+where injured=1
+group by year;
+
+#Count Total Number of fatalaties by zipcode
+select zipcode, count(killed) as totalkilled
+from accidentinfo
+where killed=1
+group by zipcode
+order by totalkilled desc;
+
+###################################  Weather data query###############################################################
+
+
+# Ingest data into a hive table
+create external table weather_final_2 (Year int, Month int, Avg_Temp double,Dew double,Visibility double, WindSpeed double) row format delimited fields terminated by ',' location '/user/hbr244/ProjectInput1/';
+
+# Gives the number of days when the dew was less than 1(meaning high probability of rainfall)
+select count(*) as no_of_Days from weather_final_2 where dew < 1;
+
+# Gives the average temperature for every year
+select year,avg(avg_temp) from weather_final_2 group by year
+
+#Gives the average dew for every year
+select year,avg(dew) from weather_final_2 group by year
+
+# Gives the average windspeed for every year
+select year,avg(windspeed) from weather_final_2 group by year
+
+#Gives the average visibility every yaer
+select year,avg(visibility) from weather_final_2 group by year
+
+# Gives the first quaterly averages of temperature and dew every year
+select year,month,avg(avg_temp) as avg_temp, avg(dew) as avg_dew from weather_final_2 where month between 1 and 3 group by year,month;
+
+# Gives the second quaterly averages of temperature and dew every year
+select year,month,avg(avg_temp) as avg_temp, avg(dew) as avg_dew from weather_final_2 where month between 4 and 6 group by year,month;
+
+# Gives the third quaterly averages of temperature and dew every year
+select year,month,avg(avg_temp) as avg_temp, avg(dew) as avg_dew from weather_final where month between 7 and 9 group by year,month;
+
+# Gives the fourth quaterly averages of temperature and dew every year
+select year,month,avg(avg_temp) as avg_temp, avg(dew) as avg_dew from weather_final where month between 10 and 12 group by year,month;
+
