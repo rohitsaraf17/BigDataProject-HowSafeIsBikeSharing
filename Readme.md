@@ -45,7 +45,7 @@ This directory contains the hive queries which were used for the analytics.
 # 06. Outputs:
 It  contains the screenshots of the analytics
 
-$$Process for Weather Dataset$$
+#### Process for Weather Dataset
 
 1. Dataset (the dataset file is present in Data ingest directory) https://www.ncdc.noaa.gov/
 2. Data Schema
@@ -89,10 +89,10 @@ Beeline;
 Use hbr244; 
 create external table weather2 (Year int, Month int, Avg_Temp double,Dew double,Visibility double, WindSpeed double, MaxTemp double, MinTemp double,Weather_State string) row format delimited fields terminated by ',' location '/user/hbr244/ProjectInput/'; 
 
-$$Process for Citi Bike Dataset$$
+#### Process for Citi Bike Dataset
 1.  Ingesting Data:
-   a. Url of the data are stored in file urls.txt.
-   b. To download the data run the script file using ./download.sh. Data will be stored in /data directory.
+   - Url of the data are stored in file urls.txt.
+   - To download the data run the script file using ./download.sh. Data will be stored in /data directory.
 2. Push the data into HDFS. hfs dfs -put /user/mn2643/FinalProject/data /home/mn2643/FinalProject/data
 Once the files are transferred to dumbo, create a directory on HDFS and store the input file
    - Location of Data into HDFS is : /user/mn2643/FinalProject/data
@@ -162,35 +162,35 @@ External Tables Used for analytics:
    - accidents -> zipcode, accidents
    - Finaldata -> date, distance, station id, duration, location, age, station name
 
-$$NYC Vision Zero Dataset$$
+#### Process for NYC Vision Zero Dataset
 
 1. Dataset:
 
 Link to InputDataSet-"https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions-Crashes/h9gi-nx95"
 
--->Download dataset
+   - Download dataset
 curl -O "https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.csv?accessType=DOWNLOAD" \\to download data on local
 
--->Rename dataset
+   - Rename dataset
 mv row.csv?accessType=DOWNLOAD vehicleCollisionData.csv      
 
 Input file : "vehicleCollisionData.csv" 
 The dataset contains information about accidents.The fields in the input dataset are as follows:
---> date
---> time
---> borough
---> latitude
---> longitude	
---> street address	
---> number of person injured	
---> number of person killed	
---> vehicle type1
---> vehicle type2
+   - date
+   - time
+   - borough
+   - latitude
+   - longitude	
+   - street address	
+   - number of person injured	
+   - number of person killed	
+   - vehicle type1
+   - vehicle type2
 
 2. Push the data onto Dumbo and store it in HDFS. 
 Once the files are transferred to dumbo, create a directory on HDFS and store the input file(vehicleCollisionData.csv) in the directory(Project).
 
--->Input Directory and File on HDFS:
+   - Input Directory and File on HDFS:
 hdfs dfs -mkdir /user/rs6785/Project
 hdfs dfs -put ./vehicleCollisionData.csv Project
 
@@ -204,13 +204,13 @@ hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar -
 
 4. Clean Data.
 Run the map reduce functions under the directory /user/rs6785/Project/FilesForClean to clean the dataset.
--->Cleaning Execution
+   - Cleaning Execution
 hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar -D mapreduce.job.reduces=1 -files hdfs://dumbo/user/rs6785/Project/FilesForClean/FinalCleanDataMapper.py,hdfs://dumbo/user/rs6785/Project/FilesForClean/FinalCleanDataReducer.py -mapper "python FinalCleanDataMapper.py" -reducer "python FinalCleanDataReducer.py" -input /user/rs6785/Project/outputPostCode.csv -output /user/rs6785/Project/outputHivePostCodeData
 
 hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar -D mapreduce.job.reduces=1 -files hdfs://dumbo/user/rs6785/Project/FilesForClean/FCleanMapper.py,hdfs://dumbo/user/rs6785/Project/FilesForClean/FinalCleanDataReducer.py -mapper "python FCleanMapper.py" -reducer "python FinalCleanDataReducer.py" -input /user/rs6785/Project/outputPostCode.csv -output /user/rs6785/Project/FData
 
 5. Run the Analytics on InputData using Hive.
--->Create and InputDirectory and push the input data into it.
+   - Create and InputDirectory and push the input data into it.
 hdfs dfs -mkdir Project/HiveFData/
 hdfs dfs -mkdir Project/HiveInput/
 hdfs dfs -mv Project/FData/part-00000 Project/HiveFData/
@@ -218,9 +218,9 @@ hdfs dfs -mv Project/outputHivePostCodeData/part-00000 Project/HiveInput/
 
 6. Hive Execution:
 Launch the hive shell on dumbo:
--->beeline
--->!connect jdbc:hive2://babar.es.its.nyu.edu:10000/
--->Database used: rs6785
+   - beeline
+   - !connect jdbc:hive2://babar.es.its.nyu.edu:10000/
+   - Database used: rs6785
 use rs6785;
 
 7. Query To Load Accident Data on HIVE
