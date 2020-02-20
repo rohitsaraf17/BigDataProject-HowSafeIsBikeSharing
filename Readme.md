@@ -42,10 +42,10 @@ This directory consists of java files that didn't make it to the final code.
 # 05 Source Code for the analytics:
 This directory contains the hive queries which were used for the analytics.
 
-# 05. Outputs:
+# 06. Outputs:
 It  contains the screenshots of the analytics
 
-->Process for Weather Dataset<-
+$$Process for Weather Dataset$$
 
 1. Dataset (the dataset file is present in Data ingest directory) https://www.ncdc.noaa.gov/
 2. Data Schema
@@ -89,80 +89,80 @@ Beeline;
 Use hbr244; 
 create external table weather2 (Year int, Month int, Avg_Temp double,Dew double,Visibility double, WindSpeed double, MaxTemp double, MinTemp double,Weather_State string) row format delimited fields terminated by ',' location '/user/hbr244/ProjectInput/'; 
 
-#############################################   Process for Citi Bike Dataset ################################
+$$Process for Citi Bike Dataset$$
 1.  Ingesting Data:
-    a. Url of the data are stored in file urls.txt.
-    b. To download the data run the script file using ./download.sh. Data will be stored in /data directory.
+   a. Url of the data are stored in file urls.txt.
+   b. To download the data run the script file using ./download.sh. Data will be stored in /data directory.
 2. Push the data into HDFS. hfs dfs -put /user/mn2643/FinalProject/data /home/mn2643/FinalProject/data
 Once the files are transferred to dumbo, create a directory on HDFS and store the input file
---> Location of Data into HDFS is : /user/mn2643/FinalProject/data
---> Location of Data into Dumbo is : /home/mn2643/FinalProject/data
+   - Location of Data into HDFS is : /user/mn2643/FinalProject/data
+   - Location of Data into Dumbo is : /home/mn2643/FinalProject/data
 There will be multiple input file in /home/mn2643/FinalProject/data, as data is divided into quarterly
 
 3. Then Profiling Code is Run on the data in HDFS
---> Mapper and Reducer File location : /home/mn2643/FinalProject/CitiMapper.java
---> Mapper: /home/mn2643/FinalProject/CitiMapper.java, 
+   - Mapper and Reducer File location : /home/mn2643/FinalProject/CitiMapper.java
+   - Mapper: /home/mn2643/FinalProject/CitiMapper.java, 
 	Jar File-> javac -classpath `yarn classpath` -d . CitiMapper.java 
---> Reducer: /home/mn2643/FinalProject/CitiReducer.java, 
+   - Reducer: /home/mn2643/FinalProject/CitiReducer.java, 
 	Jar File --> javac -classpath `yarn classpath` -d . CitiReducer.java 
---> Job: /home/mn2643/FinalProject/CitiJob.java/, Jar File --> 
+   - Job: /home/mn2643/FinalProject/CitiJob.java/, Jar File --> 
 	jar -cvf citi.jar *.class
---> Running Job File: hadoop jar  citi.jar CitiJob /user/mn2643/FinalProject/data /user/mn2643/FinalProject/output
---> Output of MapReduce: /user/mn2643/FinalProject/output
+   - Running Job File: hadoop jar  citi.jar CitiJob /user/mn2643/FinalProject/data /user/mn2643/FinalProject/output
+   - Output of MapReduce: /user/mn2643/FinalProject/output
 
 4. Cleaning the Code Based on the analysis of Profiling
---> Mapper and Reducer File location : /home/mn2643/FinalProject/Clean
---> Mapper: /home/mn2643/FinalProject/CitiCleanMapper.java
+   - Mapper and Reducer File location : /home/mn2643/FinalProject/Clean
+   - Mapper: /home/mn2643/FinalProject/CitiCleanMapper.java
 	jar-->javac -classpath `yarn classpath` -d . CitiCleanMapper.java
---> Reducer: /home/mn2643/FinalProject/CitiCleanReducer.java
+   - Reducer: /home/mn2643/FinalProject/CitiCleanReducer.java
 	jar-->javac -classpath `yarn classpath` -d . CitiCleanReducer.java
---> Job: /home/mn2643/FinalProject/CitiCleanJob.java
+   - Job: /home/mn2643/FinalProject/CitiCleanJob.java
 	jar--> jar -cvf citiclean.jar *.class
---> Running Job File: hadoop jar citiclean.jar CitiCleanJob /user/mn2643/FinalProject/data /user/mn2643/FinalProject/clean/
---> Output of MapReduce: /user/mn2643/FinalProject/clean/
+   - Running Job File: hadoop jar citiclean.jar CitiCleanJob /user/mn2643/FinalProject/data /user/mn2643/FinalProject/clean/
+   - Output of MapReduce: /user/mn2643/FinalProject/clean/
 
 5. Move Clean Output to Hive Directory in HDFS:
---> mkdir /user/mn2643/FinalProject/HiveData/Data
---> hdfs dfs -mv /user/mn2643/FinalProject/clean/part-r-00027 /user/mn2643/FinalProject/HiveData/Data
+   - mkdir /user/mn2643/FinalProject/HiveData/Data
+   - hdfs dfs -mv /user/mn2643/FinalProject/clean/part-r-00027 /user/mn2643/FinalProject/HiveData/Data
 
 6. Creating Citi Bike Table in Hive:
--->create external table citibike (date1 string,date2 string, distance double, startid int, endid int, duration double,
+   - create external table citibike (date1 string,date2 string, distance double, startid int, endid int, duration double,
 lat1 double, lat2 double, longitude1 double, longitude2 double, age double, startname string, endname string)
 row format delimited fields terminated by ','
 location '/user/mn2643/FinalProject/HiveData/Data/';
 
 7. Extracting latitude and longitude of all unique stations and insert into HDFS directory for further analysis:
---> Extract zip code --> python extractzipcode.py
--->INSERT OVERWRITE DIRECTORY '/user/mn2643/hiveu'
+   -  Extract zip code --> python extractzipcode.py
+   - INSERT OVERWRITE DIRECTORY '/user/mn2643/hiveu'
 select lat1, longitude1, startid from citibike WHERE startid in (select distinct * from (select startid as startid from citibike UNION ALL select endid as startid from citibike) 
 w )group by startid,lat1, longitude1) 
---> Location of Hive Query Ouputu in HDFS : /user/mn2643/hiveu/
---> Hive Query Stored Output location on local: /home/mn2643/FinalProject/HiveOutput/start_lat_long_unique
+   - Location of Hive Query Ouputu in HDFS : /user/mn2643/hiveu/
+   - Hive Query Stored Output location on local: /home/mn2643/FinalProject/HiveOutput/start_lat_long_unique
 
 8. Create new Folder in Dumbo for PostCodes:
---> After extracting zipcode locally new file for postcode was created and added into dumbo:
---> location /user/mn2643/FinalProject/HiveData/postCodes
+   - After extracting zipcode locally new file for postcode was created and added into dumbo:
+   - location /user/mn2643/FinalProject/HiveData/postCodes
 
 9. Move postcode data from Dumbo to HDFS:
---> hdfs dfs -mv /home/mn2643/FinalProject/HiveOutput/postcode /user/mn2643/FinalProject/HiveData/postcode
+   - hdfs dfs -mv /home/mn2643/FinalProject/HiveOutput/postcode /user/mn2643/FinalProject/HiveData/postcode
 
 10. In hive create new external tables for postcode:
---> postcode
---> finaldata (this is similar to Citibike external table) but with removed unnecessary coloumns.
+   - postcode
+   - finaldata (this is similar to Citibike external table) but with removed unnecessary coloumns.
 
 11. At the end, there are three external tables is Hive:
 Hive Execution:
 Launch the hive shell on dumbo:
--->beeline
--->!connect jdbc:hive2://babar.es.its.nyu.edu:10000/
--->Database used: mn2643
+   - beeline
+   - !connect jdbc:hive2://babar.es.its.nyu.edu:10000/
+   - Database used: mn2643
 use mn2643,
 
 External Tables Used for analytics:
---> accidents -> zipcode, accidents
---> Finaldata -> date, distance, station id, duration, location, age, station name
+   - accidents -> zipcode, accidents
+   - Finaldata -> date, distance, station id, duration, location, age, station name
 
-->NYC Vision Zero Dataset<-
+$$NYC Vision Zero Dataset$$
 
 1. Dataset:
 
