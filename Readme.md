@@ -36,13 +36,16 @@ CSCI-GA.3033-006 - Realtime and Big Data Analytics
 		i) /citibike/extractzipcode.py -> extracting zip code of Citi Bike 
 		ii) /accidents/read.py --> ConvertingLatLong for accidents data.
 
-# 04 Code Iterations: This directory consists of java files that didn't make it to the final code.
+# 04 Code Iterations: 
+This directory consists of java files that didn't make it to the final code.
 
-# 05 Source Code for the analytics - this directory contains the hive queries which were used for the analytics.
+# 05 Source Code for the analytics:
+This directory contains the hive queries which were used for the analytics.
 
-# 05. Outputs It  contains the screenshots of the analytics
+# 05. Outputs:
+It  contains the screenshots of the analytics
 
-######################################## Process for Weather Dataset #########################################
+->Process for Weather Dataset<-
 
 1. Dataset (the dataset file is present in Data ingest directory) https://www.ncdc.noaa.gov/
 2. Data Schema
@@ -58,13 +61,7 @@ CSCI-GA.3033-006 - Realtime and Big Data Analytics
 *	Max temperature   (double)
 
 3. We now ingest the data into dumbo
-* Step 1: I tried using two ways, one was the curl command, the other one is the transferring it from local machine to Hadoop node. 
-** Step 1: I used the curl command to ingest data initially,   
-** Step 2: Downloaded the csv version and transferred it to Hadoop using WinSCP. This way the entire data is now comma separated and easy to operate on. To transfer using WinSCP 
-1. Connect to VPN 
-2. Open winscp 
-3. Login using your nyu creds 
-4. Drag and drop the file from your local to PUTTY 
+I used the curl command to ingest data initially.
 
 4. MapReduce Code
 We now perform ETL and Profiling
@@ -165,7 +162,7 @@ External Tables Used for analytics:
 --> accidents -> zipcode, accidents
 --> Finaldata -> date, distance, station id, duration, location, age, station name
 
-######################################################## NYC Vision Zero Dataset #######################################################
+->NYC Vision Zero Dataset<-
 
 1. Dataset:
 
@@ -177,7 +174,7 @@ curl -O "https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.csv?accessType=D
 -->Rename dataset
 mv row.csv?accessType=DOWNLOAD vehicleCollisionData.csv      
 
-Input file : "vehicleCollisionData.csv"
+Input file : "vehicleCollisionData.csv" 
 The dataset contains information about accidents.The fields in the input dataset are as follows:
 --> date
 --> time
