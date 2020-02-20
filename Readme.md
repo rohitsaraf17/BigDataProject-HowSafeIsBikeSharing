@@ -29,7 +29,6 @@ CSCI-GA.3033-006 - Realtime and Big Data Analytics
 	c) /AccidentsProfiling: It contains the map reduce for profiling accidents data.
 
 # 03. /ETL
-It  contains the Map Reduce code for preprocessing the datasets. The following methods are done in preprocessing.
 	a) WeatherETL: It contains the map reduce for cleaning weather data.
 	b) CitiBikeETL: It contains the map reduce for cleaning Citi bike data.
 	c) AccidentsETL: It contains the map reduce for cleaning accidents data.
@@ -45,26 +44,25 @@ It  contains the Map Reduce code for preprocessing the datasets. The following m
 
 ######################################## Process for Weather Dataset #########################################
 
-1) Dataset (the dataset file is present in Data ingest directory)
-https://www.ncdc.noaa.gov/
-2) Data Schema
-• 	WBAN
-• 	Station no
-•	Year (int)	
-•	Dew(double)
-•	Month (int)	
-•	Visibility (double) 
-•	Average temperature(double)	
-•	Windspeed (double).
-•	Weather_State (String)	
-•	Max temperature   (double)
+1 Dataset (the dataset file is present in Data ingest directory) https://www.ncdc.noaa.gov/
+2 Data Schema
+* 	WBAN
+* 	Station no
+*	Year (int)	
+*	Dew(double)
+*	Month (int)	
+*	Visibility (double) 
+*	Average temperature(double)	
+*	Windspeed (double).
+*	Weather_State (String)	
+*	Max temperature   (double)
 
-3) We now ingest the data into dumbo.
-Step 1-
+3 We now ingest the data into dumbo.
+* Step 1-
 I tried using two ways, one was the curl command, the other one is the transferring it from local machine to Hadoop node. 
-Step1- 
+..* Step1- 
 I used the curl command to ingest data initially,   
-Step-2- 
+..* Step-2- 
 Downloaded the csv version and transferred it to Hadoop using WinSCP. This way the entire data is now comma separated and easy to operate on. 
 To transfer using WinSCP 
 1 Connect to VPN 
