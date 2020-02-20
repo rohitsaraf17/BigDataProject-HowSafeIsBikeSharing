@@ -28,12 +28,12 @@ CSCI-GA.3033-006 - Realtime and Big Data Analytics
 	b) /CitiBikeProfiling: It contains the map reduce for profiling Citi bike data.
 	c) /AccidentsProfiling: It contains the map reduce for profiling accidents data.
 
-# 03. ETL
+# 03. /ETL
 It  contains the Map Reduce code for preprocessing the datasets. The following methods are done in preprocessing.
-	a) /WeatherETL: It contains the map reduce for cleaning weather data.
-	b) /CitiBikeETL: It contains the map reduce for cleaning Citi bike data.
-	c) /AccidentsETL: It contains the map reduce for cleaning accidents data.
-	D) /lat-long : It contains local python code for extracting zip codes using latitude and longitude for accidents and Citi bike dataset.
+	a) WeatherETL: It contains the map reduce for cleaning weather data.
+	b) CitiBikeETL: It contains the map reduce for cleaning Citi bike data.
+	c) AccidentsETL: It contains the map reduce for cleaning accidents data.
+	D) lat-long : It contains local python code for extracting zip codes using latitude and longitude for accidents and Citi bike dataset.
 		i) /citibike/extractzipcode.py -> extracting zip code of Citi Bike 
 		ii) /accidents/read.py --> ConvertingLatLong for accidents data.
 
@@ -67,12 +67,12 @@ I used the curl command to ingest data initially,
 Step-2- 
 Downloaded the csv version and transferred it to Hadoop using WinSCP. This way the entire data is now comma separated and easy to operate on. 
 To transfer using WinSCP 
-1) Connect to VPN 
-2) Open winscp 
-3) Login using your nyu creds 
-4) Drag and drop the file from your local to PUTTY 
+1 Connect to VPN 
+2 Open winscp 
+3 Login using your nyu creds 
+4 Drag and drop the file from your local to PUTTY 
 
-4) MapReduce Code
+4 MapReduce Code
 We now perform ETL and Profiling
 The code for both of these is present in the ETL directory and Profiling directory
 
