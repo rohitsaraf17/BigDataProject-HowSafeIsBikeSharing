@@ -1,0 +1,8 @@
+curl -O "https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.csv?accessType=DOWNLOAD" \\to download data on local
+
+mv row.csv?accessType=DOWNLOAD vehicleCollisionData.csv      //to rename data
+
+hdfs dfs -put ./vehicleCollisionData.csv Project     //to put data in HDFS
+
+
+link to data: https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions-Crashes/h9gi-nx95
